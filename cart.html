@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product List</title>
+    <style>
+        body{
+            font-family: Arial;
+            padding:20px;
+        }
+        .controls{
+            margin-bottom:20px;
+            text-align: center;
+        }
+        input, select{
+            padding:6px;
+            margin-right:10px;
+        }
+        #productList{
+            display:grid;
+            grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+            gap:15px;
+        }
+        .card{
+            background:white;
+            padding:10px;
+            border-radius:8px;
+            text-align:center;
+        }
+        img{
+            width:100%;
+            height:150px;
+            object-fit:cover;
+        }
+        button{
+            margin:5px;
+            padding:5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align: center;">Product List</h2>
+
+<div class="controls">
+    <input type="text" id="search" placeholder="Search by Title">
+    
+    <select id="sort">
+        <option value="">Sort by Price</option>
+        <option value="low">Low to High</option>
+        <option value="high">High to Low</option>
+    </select>
+
+    <select id="filter">
+        <option value="">Filter by Category</option>
+    </select>
+
+</div>
+
+<div id="productList"></div>
+
+<script>
+
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let productList = document.getElementById("productList");
+
+
+function addProductToList(data){
+    productList.innerHTML = "";
+
+    data.forEach(product => {
+        let div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            <img src="${product.image}">
+            <h4>${product.title}</h4>
+            <p>₹ ${product.price}</p>
+            <p>${product.category}</p>
+            <button onclick="editProduct(${product.id})">Edit</button>
+            <button onclick="deleteProduct(${product.id})">Delete</button>
+        `;
+
+        productList.appendChild(div);
+    });
+
+    updateFilterOptions();
+}
+
+
+function deleteProduct(id){
+    products = products.filter(p => p.id !== id);
+    localStorage.setItem("products", JSON.stringify(products));
+    addProductToList(products);
+}
+
+
+function editProduct(id){
+    let product = products.find(p => p.id === id);
+
+    let newTitle = prompt("Enter New Title", product.title);
+    let newPrice = prompt("Enter New Price", product.price);
+
+    if(newTitle !== null && newPrice !== null){
+        product.title = newTitle;
+        product.price = Number(newPrice);
+        localStorage.setItem("products", JSON.stringify(products));
+        addProductToList(products);
+    }
+}
+
+
+document.getElementById("search").addEventListener("input", function(){
+    let value = this.value.toLowerCase();
+    let filtered = products.filter(p =>
+        p.title.toLowerCase().includes(value)
+    );
+    addProductToList(filtered);
+});
+
+
+document.getElementById("sort").addEventListener("change", function(){
+    let sorted = [...products];
+
+    if(this.value === "low"){
+        sorted.sort((a,b) => a.price - b.price);
+    }else if(this.value === "high"){
+        sorted.sort((a,b) => b.price - a.price);
+    }
+
+    addProductToList(sorted);
+});
+
+
+document.getElementById("filter").addEventListener("change", function(){
+    let value = this.value;
+
+    if(value === ""){
+        addProductToList(products);
+    }else{
+        let filtered = products.filter(p => p.category === value);
+        addProductToList(filtered);
+    }
+});
+
+
+function updateFilterOptions(){
+    let filter = document.getElementById("filter");
+    let categories = [...new Set(products.map(p => p.category))];
+
+    filter.innerHTML = `<option value="">Filter by Category</option>`;
+
+    categories.forEach(cat => {
+        if(cat){
+            let option = document.createElement("option");
+            option.value = cat;
+            option.textContent = cat;
+            filter.appendChild(option);
+        }
+    });
+}
+
+
+addProductToList(products);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Product</title>
+
+  <style>
+    body{
+      font-family: Arial;
+      padding:30px;
+    }
+
+    h2{
+      text-align:center;
+    }
+
+    form{
+      background:rgba(204, 231, 5, 0.252);
+      padding:20px;
+      width:300px;
+      margin:auto;
+      
+    }
+
+    input, button{
+      color:black;
+      width:100%;
+      padding:8px;
+      margin:8px 0;
+      background-color: white;
+    }
+
+    button{
+      background:rgba(11, 75, 238, 0.571);
+      color:rgb(14, 13, 13);
+      border:none;
+      cursor:pointer;
+     
+    }
+  </style>
+</head>
+<body>
+
+<h2> Product Form</h2>
+
+<form id="productForm">
+  <input type="text" id="title" placeholder="Product Name">
+  <input type="number" id="price" placeholder="Product Price">
+  <input type="text" id="image" placeholder="Image URL">
+  <input type="text" id="category" placeholder="Category">
+  <button>Product</button>
+  
+</form>
+
+<script>
+
+let products = JSON.parse(localStorage.getItem("products")) || [];
+
+
+document.getElementById("productForm").addEventListener("submit", function(e){
+  e.preventDefault();  
+
+  let title = document.getElementById("title").value;
+  let price = document.getElementById("price").value;
+  let image = document.getElementById("image").value;
+  let category = document.getElementById("category").value;
+
+ 
+  if(title === "" || price === ""){
+    alert("Please enter product name and price");
+    return;
+  }
+
+  let product = {
+    title,
+    price,   
+    image,
+    category
+  };
+
+  products.push(product);
+  localStorage.setItem("products", JSON.stringify(products));
+
+  alert("Product Added Successfully!");
+ 
+  document.getElementById("productForm").reset();
+  
+});
+</script>
+
+</body>
+</html>
